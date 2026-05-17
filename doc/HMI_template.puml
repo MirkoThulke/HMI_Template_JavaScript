@@ -1,0 +1,90 @@
+@startuml
+
+title HMI Template Architecture
+
+skinparam componentStyle rectangle
+
+footer
+© 2026 Mirko THULKE — All rights reserved
+See LICENSE file in the project root for details.
+end footer
+
+package "Configuration" {
+
+component HMI
+component INFO
+component INPUTS
+component BUTTONS
+component SCREENS
+
+HMI --> INFO
+HMI --> INPUTS
+HMI --> BUTTONS
+HMI --> SCREENS
+
+}
+
+package "State" {
+
+component AppState
+
+}
+
+package "Builder Functions" {
+
+component initializeHMI
+component buildInfoFields
+component buildInputs
+component buildButtons
+component buildScreens
+component buildDynamicScreens
+
+initializeHMI --> buildInfoFields
+initializeHMI --> buildInputs
+initializeHMI --> buildButtons
+initializeHMI --> buildScreens
+initializeHMI --> buildDynamicScreens
+
+}
+
+package "Actions" {
+
+component buttonPressed
+component showScreen
+component showPopup
+component hidePopup
+
+}
+
+package "DOM" {
+
+component infoContainer
+component inputContainer
+component buttonContainer
+component screenContainer
+component dynamicScreens
+component popup
+
+}
+
+INFO --> buildInfoFields
+INPUTS --> buildInputs
+BUTTONS --> buildButtons
+SCREENS --> buildScreens
+SCREENS --> buildDynamicScreens
+
+buildInfoFields --> infoContainer
+buildInputs --> inputContainer
+buildButtons --> buttonContainer
+buildScreens --> screenContainer
+buildDynamicScreens --> dynamicScreens
+
+buttonPressed --> AppState
+buttonPressed --> showPopup
+
+showPopup --> popup
+hidePopup --> popup
+
+showScreen --> dynamicScreens
+
+@enduml

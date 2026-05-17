@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Grey HMI Template</title>
+
+    <style>
+        /* © 2026 Mirko THULKE — All rights reserved
+See LICENSE file in the project root for details.
+*/
+
+        /* =========================
+   GENERAL
+========================= */
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #d6d6d6;
+            color: #222;
+        }
+
+        .header {
+            background: #555;
+            color: white;
+            padding: 18px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* =========================
+   SCREEN
+========================= */
+
+        .screen {
+            padding: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* =========================
+   PANELS
+========================= */
+
+        .panel {
+            background: #efefef;
+            border: 1px solid #999;
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+
+        .panelTitle {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #444;
+        }
+
+        /* =========================
+   ROWS
+========================= */
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 10px 0;
+
+            border-bottom: 1px solid #ccc;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .value {
+            color: #111;
+        }
+
+        /* =========================
+   BUTTONS
+========================= */
+
+        button {
+            width: 100%;
+            padding: 12px;
+
+            margin-top: 8px;
+
+            background: #777;
+            color: white;
+
+            border: none;
+
+            font-size: 15px;
+
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #666;
+        }
+
+        /* =========================
+   INPUTS
+========================= */
+
+        input[type="text"] {
+
+            width: 60%;
+
+            padding: 8px;
+
+            background: white;
+
+            border: 1px solid #999;
+
+            font-size: 15px;
+        }
+
+        /* =========================
+   POPUP
+========================= */
+
+        .popup {
+
+            position: fixed;
+
+            top: 30%;
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            width: 320px;
+
+            background: #efefef;
+
+            border: 2px solid #666;
+
+            padding: 20px;
+
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =========================
+     HEADER
+========================= -->
+
+    <div class="header">
+        Demo HMI Template
+    </div>
+
+    <!-- =========================
+     HOME SCREEN
+========================= -->
+    <div id="homeScreen" class="screen">
+
+        <div class="panel">
+
+            <div class="panelTitle">
+                Information
+            </div>
+
+            <div id="infoContainer"></div>
+
+        </div>
+
+        <div class="panel">
+
+            <div class="panelTitle">
+                Inputs
+            </div>
+
+            <div id="inputContainer"></div>
+
+        </div>
+
+        <div class="panel">
+
+            <div class="panelTitle">
+                Actions
+            </div>
+
+            <div id="buttonContainer"></div>
+
+        </div>
+
+        <div class="panel">
+
+            <div class="panelTitle">
+                Screens
+            </div>
+
+            <div id="screenContainer"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+     ADDITIONAL SCREEN
+========================= -->
+
+    <div id="dynamicScreens"></div>
+
+
+
+    <!-- =========================
+     POPUP
+========================= -->
+
+    <div id="popup" class="popup hidden">
+
+        <div id="popupText">
+            Popup Text
+        </div>
+
+        <br><br>
+
+        <button onclick="hidePopup()">
+            OK
+        </button>
+
+    </div>
+
+    <!-- =========================
+     JAVASCRIPT
+========================= -->
+
+    <script>
+
+        // =========================
+        // HMI ENUMS / CONFIGURATION
+        // =========================
+
+        const HMI = {
+
+            INFO: [
+
+                "Info Field 1",
+                "Info Field 2",
+                "Info Field 3",
+                "Info Field 4",
+                "Info Field 5",
+
+                "Info Field 6",
+                "Info Field 7",
+                "Info Field 8",
+                "Info Field 9",
+                "Info Field 10"
+
+            ],
+
+            INPUTS: [
+
+                "Input 1",
+                "Input 2",
+                "Input 3",
+                "Input 4",
+                "Input 5"
+
+            ],
+
+            BUTTONS: [
+
+                "Push Button 1",
+                "Push Button 2",
+                "Push Button 3",
+                "Push Button 4",
+                "Push Button 5",
+
+                "Push Button 6",
+                "Push Button 7",
+                "Push Button 8",
+                "Push Button 9",
+                "Push Button 10"
+
+            ],
+
+            SCREENS: [
+
+                {
+                    id: "secondScreen",
+                    text: "Second Screen"
+                },
+
+                {
+                    id: "thirdScreen",
+                    text: "Third Screen"
+                },
+
+                {
+                    id: "fourthScreen",
+                    text: "Fourth Screen"
+                },
+
+                {
+                    id: "fifthScreen",
+                    text: "Fifth Screen"
+                }
+
+            ]
+
+        };
+
+        // =========================
+        // GLOBAL STATE
+        // =========================
+
+        // =========================
+        // BUILD HMI
+        // =========================
+
+        function initializeHMI() {
+
+            buildInfoFields();
+            buildInputs();
+            buildButtons();
+            buildScreens();
+            buildDynamicScreens();
+
+        }
+
+
+        function buildInfoFields() {
+
+            let html = "";
+
+            HMI.INFO.forEach((label, index) => {
+
+                html += `
+
+        <div class="row">
+
+            <div class="label">
+
+                ${label}
+
+            </div>
+
+            <div class="value"
+                 id="info${index + 1}">
+
+                 Value ${index + 1}
+
+            </div>
+
+        </div>
+
+        `;
+
+            });
+
+            document.getElementById(
+                "infoContainer"
+            ).innerHTML = html;
+
+        }
+
+
+        function buildInputs() {
+
+            let html = "";
+
+            HMI.INPUTS.forEach((label, index) => {
+
+                html += `
+
+        <div class="row">
+
+            <div class="label">
+
+                ${label}
+
+            </div>
+
+            <input
+                type="text"
+                id="input${index + 1}">
+
+        </div>
+
+        `;
+
+            });
+
+            document.getElementById(
+                "inputContainer"
+            ).innerHTML = html;
+
+        }
+
+
+
+        function buildButtons() {
+
+            let html = "";
+
+            HMI.BUTTONS.forEach((label, index) => {
+
+                html += `
+
+        <button
+            onclick="buttonPressed(${index + 1})">
+
+            ${label}
+
+        </button>
+
+        `;
+
+            });
+
+            document.getElementById(
+                "buttonContainer"
+            ).innerHTML = html;
+
+        }
+
+        const appState = {
+
+            lastButtonPressed: 0
+
+        };
+
+
+
+        function buttonPressed(number) {
+
+            appState.lastButtonPressed = number;
+
+            document.getElementById("info1").innerText =
+                "Button " + number + " pressed";
+
+            showPopup("Push Button " + number + " pressed");
+        }
+
+
+
+        function buildScreens() {
+
+            let html = "";
+
+            HMI.SCREENS.forEach(screen => {
+
+                html += `
+
+        <button
+            onclick="showScreen('${screen.id}')">
+
+            Go To ${screen.text}
+
+        </button>
+
+        `;
+
+            });
+
+            document.getElementById(
+                "screenContainer"
+            ).innerHTML = html;
+
+        }
+
+        function buildDynamicScreens() {
+
+            let html = "";
+
+            HMI.SCREENS.forEach(screen => {
+
+                html += `
+
+        <div id="${screen.id}"
+             class="screen hidden">
+
+            <div class="panel">
+
+                <div class="panelTitle">
+
+                    ${screen.text}
+
+                </div>
+
+                <div class="row">
+
+                    <div class="label">
+                        Status
+                    </div>
+
+                    <div class="value">
+
+                        ${screen.text} Active
+
+                    </div>
+
+                </div>
+
+                <button
+                  onclick="showPopup('${screen.text} popup')">
+
+                    Show Popup
+
+                </button>
+
+                <button
+                  onclick="showScreen('homeScreen')">
+
+                    Back To Home
+
+                </button>
+
+            </div>
+
+        </div>
+
+        `;
+
+            });
+
+            document.getElementById(
+                "dynamicScreens"
+            ).innerHTML = html;
+
+        }
+
+        // =========================
+        // SCREEN NAVIGATION
+        // =========================
+
+        function showScreen(screenId) {
+
+            document.querySelectorAll(".screen")
+                .forEach(screen => {
+                    screen.classList.add("hidden");
+                });
+
+            document.getElementById(screenId)
+                .classList.remove("hidden");
+        }
+
+        // =========================
+        // POPUP
+        // =========================
+
+        function showPopup(text) {
+
+            document.getElementById("popupText").innerText = text;
+
+            document.getElementById("popup")
+                .classList.remove("hidden");
+        }
+
+        function hidePopup() {
+
+            document.getElementById("popup")
+                .classList.add("hidden");
+        }
+
+        initializeHMI();
+
+    </script>
+
+</body>
+
+</html>
